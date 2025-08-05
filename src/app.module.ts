@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { RolesModule } from './roles/roles.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
 import { PublicacionesModule } from './publicaciones/publicaciones.module';
 import { ComentariosModule } from './comentarios/comentarios.module';
@@ -11,7 +10,6 @@ import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
-    RolesModule,
     UsuariosModule,
     PublicacionesModule,
     ComentariosModule,
