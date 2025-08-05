@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// prisma/schema.prisma
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // uncomment next line if you use Prisma <5.10
+  // directUrl = env("DATABASE_URL_UNPOOLED")
+}
+model Rol {
+  id_rol     Int       @id @default(autoincrement())
+  nombre_rol String
+
+  usuarios   Usuario[]
+}
+
+model Usuario {
+  id_usuario      Int            @id @default(autoincrement())
+  nombre          String
+  correo          String         @unique
+  contraseña      String
+  fecha_registro  DateTime       @default(now())
+  id_rol          Int
+
+  rol             Rol            @relation(fields: [id_rol], references: [id_rol])
+  publicaciones   Publicacion[]
+  comentarios     Comentario[]
+}
+
+model Publicacion {
+  id_publicacion   Int          @id @default(autoincrement())
+  titulo           String
+  contenido        String
+  fecha_creacion   DateTime     @default(now())
+  id_autor         Int
+
+  autor            Usuario      @relation(fields: [id_autor], references: [id_usuario])
+  comentarios      Comentario[]
+}
+
+model Comentario {
+  id_comentario     Int          @id @default(autoincrement())
+  contenido         String
+  fecha_creacion    DateTime     @default(now())
+  id_publicacion    Int
+  id_usuario        Int
+  id_padre          Int?        
+
+  publicacion       Publicacion  @relation(fields: [id_publicacion], references: [id_publicacion])
+  usuario           Usuario      @relation(fields: [id_usuario], references: [id_usuario])
+  padre             Comentario?  @relation("RespuestaPadre", fields: [id_padre], references: [id_comentario])
+  respuestas        Comentario[] @relation("RespuestaPadre")
+}
