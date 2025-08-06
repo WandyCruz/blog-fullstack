@@ -25,7 +25,7 @@ export class UsuariosController {
   constructor(private readonly usuariosService: UsuariosService) {}
 
   // crud que trae la info general del usuario, panel administrativo
-  @Roles([1, 2, 3])
+  @Roles([2, 3])
   @Get()
   async find() {
     return await this.usuariosService.find();

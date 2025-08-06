@@ -6,6 +6,7 @@ import { PrismaService } from 'src/prisma/Prisma.service';
 @Injectable()
 export class PublicacionesService {
   constructor(private prisma: PrismaService) {}
+  // crea un articulo
   async create(createPublicacioneDto: CreatePublicacioneDto) {
     try {
       return await this.prisma.publicacion.create({
@@ -16,7 +17,7 @@ export class PublicacionesService {
       throw error;
     }
   }
-
+  //  extrae todos los articulos publicados
   async findAll() {
     try {
       return await this.prisma.publicacion.findMany();
@@ -26,6 +27,7 @@ export class PublicacionesService {
     }
   }
 
+  // filtra los articulos por id
   async findOne(id: number) {
     try {
       return await this.prisma.publicacion.findMany({
@@ -36,6 +38,7 @@ export class PublicacionesService {
     }
   }
 
+  // actualiza articulos filtrando por id
   async update(id: number, updatePublicacioneDto: UpdatePublicacionDto) {
     try {
       return await this.prisma.publicacion.update({
@@ -47,6 +50,7 @@ export class PublicacionesService {
     }
   }
 
+  // elimina una publicacion
   async remove(id: number) {
     try {
       return await this.prisma.publicacion.delete({

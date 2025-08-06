@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateComentarioDto } from './dto/create-comentario.dto';
 import { PrismaService } from 'src/prisma/Prisma.service';
 import { UpdateComentarioDto } from './dto/update-comentario.dto';
@@ -53,8 +53,21 @@ export class ComentariosService {
   }
 
   // funcion para editar comentarios
-  async update(id: number, updateComentarioDto: UpdateComentarioDto) {
+  async update(
+    id: number,
+    updateComentarioDto: UpdateComentarioDto,
+    id_usuario: number,
+  ) {
     try {
+      const filtrarComentario = await this.prisma.comentario.findUnique({
+        where: { id_comentario: id },
+      });
+
+      if (id_usuario !== filtrarComentario?.id_usuario) {
+        throw new UnauthorizedException(
+          'No estas autorizado para actualizar este comnetario este comentario',
+        );
+      }
       return await this.prisma.comentario.update({
         where: { id_comentario: id },
         data: updateComentarioDto,
@@ -77,7 +90,10 @@ export class ComentariosService {
     }
   }
 
-  async removeComent({ id_comentario, id_usuario }: DeleteComentarioDto) {
+  async removeComent(
+    { id_comentario }: DeleteComentarioDto,
+    id_usuario: number,
+  ) {
     try {
       const comentario = await this.prisma.comentario.findUnique({
         where: {

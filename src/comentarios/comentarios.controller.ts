@@ -14,51 +14,69 @@ import { UseGuards } from '@nestjs/common';
 import { JwtCookieGuard } from 'src/auth/guard/auth.guard';
 import { Roles } from 'src/auth/deoradores/roles.decorator';
 import { DeleteComentarioDto } from './dto/delete-comentario.dto';
-@UseGuards(JwtCookieGuard)
+import { Request } from 'express';
+import { Res } from '@nestjs/common';
+interface Id_usuario_Jwt extends Request {
+  user: {
+    id_usuario: number;
+  };
+}
+
 @Controller('comentarios')
 export class ComentariosController {
   constructor(private readonly comentariosService: ComentariosService) {}
-  @Roles([1, 2, 3])
-  @Post()
-  async create(@Body() createComentarioDto: CreateComentarioDto) {
-    return await this.comentariosService.create(createComentarioDto);
-  }
 
-  @Roles([1, 2, 3])
+  // muestra comentarios en las publicaciones
   @Get()
   async findAll(@Param() id_publicacion: number) {
     return await this.comentariosService.comentarioDePublicacion(
       id_publicacion,
     );
   }
+  @Post()
+  async create(@Body() createComentarioDto: CreateComentarioDto) {
+    return await this.comentariosService.create(createComentarioDto);
+  }
+  // ruta para eliminar comentario publicados por la cuenta logueda
+  @Delete('eliminarComentario')
+  async removeComentuser(
+    @Body('id') id_comentario: DeleteComentarioDto,
+    @Res() req: Id_usuario_Jwt,
+  ) {
+    const user = req.user;
+    return await this.comentariosService.removeComent(
+      id_comentario,
+      user.id_usuario,
+    );
+  }
+
+  // ruta para editar comentarios
+  @Patch('editarComnetarios/:id')
+  async update(
+    @Param('id') id: string,
+    @Body() updateComentarioDto: UpdateComentarioDto,
+    @Res() req: Id_usuario_Jwt,
+  ) {
+    const user = req.user;
+    return await this.comentariosService.update(
+      Number(id),
+      updateComentarioDto,
+      user.id_usuario,
+    );
+  }
+
+  @UseGuards(JwtCookieGuard)
+  // ruta para filtrar comentarios por id
   @Roles([2])
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return await this.comentariosService.findOne(+id);
   }
-  @Roles([1, 2, 3])
-  @Patch(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateComentarioDto: UpdateComentarioDto,
-  ) {
-    return await this.comentariosService.update(
-      Number(id),
-      updateComentarioDto,
-    );
-  }
 
-  // ruta para borrar cualquier coemntario, solo administradpores
+  // ruta para borrar cualquier comentario, solo administradpores
   @Roles([2])
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return await this.comentariosService.remove(Number(id));
-  }
-
-  // ruta para eliminar comentario publicados por la cuenta logueda
-  @Roles([1, 2, 3])
-  @Delete(':id')
-  async removeComentuser(@Body('id') id: DeleteComentarioDto) {
-    return await this.comentariosService.removeComent(id);
   }
 }

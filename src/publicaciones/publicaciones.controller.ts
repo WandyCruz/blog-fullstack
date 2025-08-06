@@ -20,22 +20,25 @@ interface Date_de_token extends Request {
     id_usuario: number;
   };
 }
-@UseGuards(JwtCookieGuard)
+
 @Controller('publicaciones')
 export class PublicacionesController {
   constructor(private readonly publicacionesService: PublicacionesService) {}
+  // muestra todas la publicaciones
+  @Get()
+  async findAll() {
+    return await this.publicacionesService.findAll();
+  }
+
+  @UseGuards(JwtCookieGuard)
+  // ruta para crear articulos
   @Roles([2, 3])
   @Post()
   async create(@Body() createPublicacioneDto: CreatePublicacioneDto) {
     return await this.publicacionesService.create(createPublicacioneDto);
   }
 
-  @Roles([1, 2, 3])
-  @Get()
-  async findAll() {
-    return await this.publicacionesService.findAll();
-  }
-
+  // muestra las publicaciones que  el autor a subido
   @Roles([2, 3])
   @Get('publicaciones_realizadas/:id')
   async findOne(@Req() req: Date_de_token) {
@@ -43,6 +46,7 @@ export class PublicacionesController {
     return await this.publicacionesService.findOne(user.id_usuario);
   }
 
+  // edita una publicacion
   @Roles([2, 3])
   @Patch('actualizar_publicacion')
   async update(
@@ -53,6 +57,7 @@ export class PublicacionesController {
     return await this.publicacionesService.update(+id, updatePublicacioneDto);
   }
 
+  // elimina una publlicacion
   @Roles([2, 3])
   @Delete(':id')
   async remove(@Param('id') id: string) {
