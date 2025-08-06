@@ -9,7 +9,7 @@ async function bootstrap() {
     Credential: true,
   });
   app.use(cookieParser());
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT || 3000);
   console.log('servidor correindo en' + ' ' + 'http://localhost:3001');
 }
 
