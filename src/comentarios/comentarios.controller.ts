@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Delete,
+  Req,
 } from '@nestjs/common';
 import { ComentariosService } from './comentarios.service';
 import { CreateComentarioDto } from './dto/create-comentario.dto';
@@ -16,6 +17,7 @@ import { Roles } from 'src/auth/deoradores/roles.decorator';
 import { DeleteComentarioDto } from './dto/delete-comentario.dto';
 import { Request } from 'express';
 import { Res } from '@nestjs/common';
+import { filtarRespuestaDto } from './dto/filtrar-respuestas-comentarios.dto';
 interface Id_usuario_Jwt extends Request {
   user: {
     id_usuario: number;
@@ -33,10 +35,28 @@ export class ComentariosController {
       id_publicacion,
     );
   }
-  @Post()
-  async create(@Body() createComentarioDto: CreateComentarioDto) {
-    return await this.comentariosService.create(createComentarioDto);
+
+  // ruta para filtrar las respuestas a los  comentarios
+  @Get('respuestas')
+  async findOne(@Body() id_padre: filtarRespuestaDto) {
+    return await this.comentariosService.respuestasDeComentarios(id_padre);
   }
+  @UseGuards(JwtCookieGuard)
+  @Roles([1, 2, 3])
+  // ruta para cerar comentario
+  @Post()
+  async create(
+    @Body() createComentarioDto: CreateComentarioDto,
+    @Req() req: Id_usuario_Jwt,
+  ) {
+    const user = req.user;
+    console.log(user);
+    return await this.comentariosService.create(
+      createComentarioDto,
+      user.id_usuario,
+    );
+  }
+  @Roles([1, 2, 3])
   // ruta para eliminar comentario publicados por la cuenta logueda
   @Delete('eliminarComentario')
   async removeComentuser(
@@ -50,6 +70,7 @@ export class ComentariosController {
     );
   }
 
+  @Roles([1, 2, 3])
   // ruta para editar comentarios
   @Patch('editarComnetarios/:id')
   async update(
@@ -63,14 +84,6 @@ export class ComentariosController {
       updateComentarioDto,
       user.id_usuario,
     );
-  }
-
-  @UseGuards(JwtCookieGuard)
-  // ruta para filtrar comentarios por id
-  @Roles([2])
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return await this.comentariosService.findOne(+id);
   }
 
   // ruta para borrar cualquier comentario, solo administradpores

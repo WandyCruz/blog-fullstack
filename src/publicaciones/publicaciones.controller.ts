@@ -34,11 +34,18 @@ export class PublicacionesController {
   // ruta para crear articulos
   @Roles([2, 3])
   @Post()
-  async create(@Body() createPublicacioneDto: CreatePublicacioneDto) {
-    return await this.publicacionesService.create(createPublicacioneDto);
+  async create(
+    @Body() createPublicacioneDto: CreatePublicacioneDto,
+    @Req() req: Date_de_token,
+  ) {
+    const user = req.user;
+    return await this.publicacionesService.create(
+      createPublicacioneDto,
+      user.id_usuario,
+    );
   }
 
-  // muestra las publicaciones que  el autor a subido
+  // muestra las publicaciones que  el autor a subido, perfiles de autores
   @Roles([2, 3])
   @Get('publicaciones_realizadas/:id')
   async findOne(@Req() req: Date_de_token) {

@@ -6,17 +6,7 @@ import { PrismaService } from 'src/prisma/Prisma.service';
 @Injectable()
 export class PublicacionesService {
   constructor(private prisma: PrismaService) {}
-  // crea un articulo
-  async create(createPublicacioneDto: CreatePublicacioneDto) {
-    try {
-      return await this.prisma.publicacion.create({
-        data: createPublicacioneDto,
-      });
-    } catch (error) {
-      console.error('error al crear el artuiculo' + error);
-      throw error;
-    }
-  }
+
   //  extrae todos los articulos publicados
   async findAll() {
     try {
@@ -35,6 +25,17 @@ export class PublicacionesService {
       });
     } catch (error) {
       console.error('error al filtar los articulos' + error);
+    }
+  }
+
+  async create(createPublicacioneDto: CreatePublicacioneDto, id_autor: number) {
+    try {
+      return await this.prisma.publicacion.create({
+        data: { ...createPublicacioneDto, id_autor: id_autor },
+      });
+    } catch (error) {
+      console.error('error al crear el artuiculo' + error);
+      throw error;
     }
   }
 

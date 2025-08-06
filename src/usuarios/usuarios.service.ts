@@ -1,8 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUsuarioDto } from 'src/auth/dto/create_usuarios.dto';
-import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { PrismaService } from 'src/prisma/Prisma.service';
 import { loginUsuarioDto } from 'src/auth/dto/login_usuario.dto';
+import { UpdateUsuarioDto } from '../auth/dto/update-usuario.dto';
+import { UpdateRolUsuarioDto } from './dto/updateRol_Usuario.dto';
 
 @Injectable()
 export class UsuariosService {
@@ -67,16 +68,45 @@ export class UsuariosService {
     }
   }
 
-  // funcion que actualiza los usuario
-
-  async update(id: number, UpdateUsuarioDto: UpdateUsuarioDto) {
+  // funcion que actualiza los roles
+  async update(id: number, id_rol: UpdateRolUsuarioDto) {
     try {
-      return await this.prisma.usuario.update({
+      if (isNaN(id_rol.id_rol)) {
+        throw new BadRequestException('id rol no valido');
+      }
+
+      const user = await this.prisma.usuario.update({
         where: { id_usuario: id },
-        data: UpdateUsuarioDto,
+        data: {
+          id_rol: id_rol.id_rol,
+        },
       });
+
+      return user;
     } catch (error) {
-      console.error('error al actualizar usuario' + error);
+      console.error('error al actualizar rol de  usuario' + error);
+      throw error;
+    }
+  }
+
+  // funcion parta actualizar el perfil  del usuario
+
+  async updatePerfil(
+    id_usuario: number,
+    { contraseña, correo, nombre }: UpdateUsuarioDto,
+  ) {
+    try {
+      const update = await this.prisma.usuario.update({
+        where: { id_usuario },
+        data: {
+          contraseña,
+          correo,
+          nombre,
+        },
+      });
+      return update;
+    } catch (error) {
+      console.error('error al actualizar perfil' + error);
       throw error;
     }
   }

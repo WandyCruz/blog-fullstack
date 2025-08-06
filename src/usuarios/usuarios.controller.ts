@@ -7,12 +7,12 @@ import {
   Delete,
   Req,
 } from '@nestjs/common';
-import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { UsuariosService } from './usuarios.service';
 import { Roles } from 'src/auth/deoradores/roles.decorator';
 import { JwtCookieGuard } from 'src/auth/guard/auth.guard';
 import { UseGuards } from '@nestjs/common';
 import { Request } from 'express';
+import { UpdateRolUsuarioDto } from './dto/updateRol_Usuario.dto';
 
 interface idDelResques extends Request {
   user: {
@@ -40,28 +40,14 @@ export class UsuariosController {
     return await this.usuariosService.findOne(user.id_usuario);
   }
 
-  // crud para editar la infi de los usuarios (correo, password, nombre)
-  @Roles([1, 2, 3])
-  @Patch('Editar')
-  async update(
-    @Req() req: idDelResques,
-    @Body() UpdateUsuarioDto: UpdateUsuarioDto,
-  ) {
-    const usuario = req.user;
-    return await this.usuariosService.update(
-      usuario.id_usuario,
-      UpdateUsuarioDto,
-    );
-  }
-
-  // crud para asignar roles administrativos
+  // crud para asignar roles (solo administracion)
   @Roles([2])
-  @Patch('addRoles')
+  @Patch('addRol/:id')
   async updateRoles(
     @Param('id') id: string,
-    @Body() UpdateUsuarioDto: UpdateUsuarioDto,
+    @Body() id_rol: UpdateRolUsuarioDto,
   ) {
-    return await this.usuariosService.update(Number(id), UpdateUsuarioDto);
+    return await this.usuariosService.update(+id, id_rol);
   }
 
   // crud para eliminar cuentas

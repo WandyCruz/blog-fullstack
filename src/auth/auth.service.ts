@@ -5,6 +5,7 @@ import { CreateUsuarioDto } from './dto/create_usuarios.dto';
 import { loginUsuarioDto } from './dto/login_usuario.dto';
 import { EncriptacionService } from './encriptacion/encriptacion.service';
 import { JwtAuthService } from './jwt/jwtauth.service';
+import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 @Injectable()
 export class AuthService {
   constructor(
@@ -14,7 +15,7 @@ export class AuthService {
   ) {}
   // validacion de usuarios al registarse
   async create({ correo, contraseña, nombre }: CreateUsuarioDto) {
-    // wenviamos la password en texto plano a hashedPassword
+    // enviamos la password en texto plano a hashedPassword
     const hashedPassword =
       await this.encriptacionService.hashPassword(contraseña);
     // envia todos los datos  a usuariosService, el cual filtra el  email, y si no esta registrado en la base de datos, genera el nuevo usuario
@@ -47,5 +48,24 @@ export class AuthService {
     });
 
     return token;
+  }
+
+  async updatePerfil(
+    id_usuario: number,
+    { contraseña, correo, nombre }: UpdateUsuarioDto,
+  ) {
+    const passwordHasheada =
+      await this.encriptacionService.hashPassword(contraseña);
+
+    const updateUsuarioDto: UpdateUsuarioDto = {
+      contraseña: passwordHasheada,
+      correo,
+      nombre,
+    };
+
+    return await this.usuariosService.updatePerfil(
+      id_usuario,
+      updateUsuarioDto,
+    );
   }
 }

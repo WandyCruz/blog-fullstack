@@ -1,22 +1,31 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateComentarioDto } from './dto/create-comentario.dto';
 import { PrismaService } from 'src/prisma/Prisma.service';
 import { UpdateComentarioDto } from './dto/update-comentario.dto';
 import { DeleteComentarioDto } from './dto/delete-comentario.dto';
+import { filtarRespuestaDto } from './dto/filtrar-respuestas-comentarios.dto';
 @Injectable()
 export class ComentariosService {
   constructor(private readonly prisma: PrismaService) {}
 
   // crea un nuevo comentario
-  async create(createComentarioDto: CreateComentarioDto) {
+  async create(
+    { contenido, id_padre, id_publicacion }: CreateComentarioDto,
+    id_usuario: number,
+  ) {
     try {
-      const { id_padre, id_publicacion, id_usuario, contenido } =
-        createComentarioDto;
+      if (isNaN(id_usuario)) {
+        throw new Error('inicia sesion para poder comentar');
+      }
       return await this.prisma.comentario.create({
         data: {
           contenido,
           id_padre: id_padre ?? null,
-          id_usuario,
+          id_usuario: id_usuario,
           id_publicacion,
         },
       });
@@ -30,7 +39,7 @@ export class ComentariosService {
   async comentarioDePublicacion(id_publicacion: number) {
     try {
       return await this.prisma.comentario.findMany({
-        where: { id_publicacion },
+        where: { id_publicacion, id_padre: null },
       });
     } catch (error) {
       console.error('error al traer comentarios' + error);
@@ -38,16 +47,19 @@ export class ComentariosService {
     }
   }
 
-  // funcion que filtra los comentarios por el id
-  async findOne(id: number) {
+  // funcion que filtra las respuestas a los comentarios
+  async respuestasDeComentarios(filtarRespuestaDto: filtarRespuestaDto) {
     try {
-      return await this.prisma.comentario.findUnique({
-        where: { id_comentario: id },
+      const comentario = await this.prisma.comentario.findMany({
+        where: { id_padre: filtarRespuestaDto.id_padre },
       });
+
+      if (comentario.length === 0) {
+        throw new NotFoundException('Este comentario no tiene respuestas');
+      }
+      return comentario;
     } catch (error) {
-      console.error(
-        'error al filtrar el comentario con el id' + ' ' + id + error,
-      );
+      console.error('error al traer las respuestas de los  comentarios');
       throw error;
     }
   }
@@ -65,7 +77,7 @@ export class ComentariosService {
 
       if (id_usuario !== filtrarComentario?.id_usuario) {
         throw new UnauthorizedException(
-          'No estas autorizado para actualizar este comnetario este comentario',
+          'No estas autorizado para actualizar este comnetario',
         );
       }
       return await this.prisma.comentario.update({
@@ -77,7 +89,7 @@ export class ComentariosService {
     }
   }
 
-  // funcion para eliminar comentarios
+  // funcion para eliminar comentarios generales, solo administracion
   async remove(id: number) {
     try {
       return await this.prisma.comentario.delete({
