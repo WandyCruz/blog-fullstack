@@ -30,6 +30,11 @@ export class PublicacionesController {
     return await this.publicacionesService.findAll();
   }
 
+  @Get('publicaciones/:id')
+  async lectura(@Param('id') id: string) {
+    return await this.publicacionesService.lectura(+id);
+  }
+
   @UseGuards(JwtCookieGuard)
   // ruta para crear articulos
   @Roles([2, 3])

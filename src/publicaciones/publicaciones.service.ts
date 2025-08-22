@@ -21,6 +21,17 @@ export class PublicacionesService {
     }
   }
 
+  async lectura(id: number) {
+    return await this.prisma.publicacion.findUnique({
+      where: {
+        id_publicacion: id,
+      },
+      include: {
+        autor: true,
+      },
+    });
+  }
+
   // filtra los articulos por id
   async findOne(id: number) {
     try {
