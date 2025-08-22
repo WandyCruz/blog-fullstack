@@ -1,5 +1,5 @@
 "use client";
-import Inputs from "@/componentes/user/inputs";
+import Inputs from "@/componentes/inputs";
 import Link from "next/link";
 import Btn from "@/componentes/user/btn";
 import Image from "next/image";

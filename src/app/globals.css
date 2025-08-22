@@ -12,3 +12,57 @@
 .animate-marquee {
   animation: marquee 20s linear infinite;
 }
+
+/* Estilos para la tipografía del contenido */
+.prose {
+  color: #374151;
+  line-height: 1.75;
+}
+
+.prose p {
+  margin-bottom: 1.5rem;
+  font-size: 1.125rem;
+}
+
+.prose h2 {
+  color: #111827;
+  font-weight: 700;
+  font-size: 1.875rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.prose h3 {
+  color: #111827;
+  font-weight: 600;
+  font-size: 1.5rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.prose strong {
+  color: #111827;
+  font-weight: 600;
+}
+
+.prose a {
+  color: #059669;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+}
+
+.prose a:hover {
+  color: #047857;
+}
+
+/* Mejoras para el scroll suave */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Estilos para imágenes responsivas */
+img {
+  max-width: 100%;
+  height: auto;
+}

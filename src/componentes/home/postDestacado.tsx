@@ -1,39 +1,27 @@
-"use client";
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
 
-interface autor {
+interface Autor {
   nombre: string;
 }
-interface post {
+
+interface PostType {
+  id_publicacion: number;
   titulo: string;
   contenido: string;
-  fecha_creacion: Date;
-  autor: autor;
+  fecha_creacion: string; // o Date
+  autor: Autor;
   urlImg: string;
 }
-export default function PostDestacado() {
-  const [postDestacado, setPostDestacado] = useState<post[]>([]);
+
+export default function PostDestacado({ data }: { data: PostType[] }) {
   const sample = {
     href: "/blog/dont-close-your-eyes",
   };
 
-  useEffect(() => {
-    const dataPost = async () => {
-      const res = await fetch("http://localhost:3001/publicaciones", {
-        method: "GET",
-      });
-      const data = await res.json();
-      console.log(data);
-      return setPostDestacado(data);
-    };
-    dataPost();
-  }, [setPostDestacado]);
-
   return (
     <>
-      {postDestacado.slice(-1).map((postDestacado, index) => (
+      {data.slice(-1).map((postDestacado, index) => (
         <article
           key={index}
           className="group w-full max-w-11/12 mx-auto overflow-hidden bg-white"
@@ -64,7 +52,7 @@ export default function PostDestacado() {
                     </span>
                     <div className="border-b border hover:scale-110 transition">
                       <span className=" text-black px-3 py-1 text-xs font-bold uppercase tracking-tight ">
-                        <Link href={sample.href}>ver mas</Link>
+                        <Link href={`http://localhost:3000/publicaciones/${postDestacado.id_publicacion}`}>ver mas</Link>
                       </span>
                     </div>
                   </div>
