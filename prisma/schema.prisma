@@ -39,6 +39,7 @@ model Publicacion {
   id_publicacion   Int          @id @default(autoincrement())
   titulo           String
   contenido        String
+  urlImg           String       @default("https://cdn.pixabay.com/photo/2016/03/27/19/20/indian-1283789_960_720.jpg")
   fecha_creacion   DateTime     @default(now())
   id_autor         Int
 

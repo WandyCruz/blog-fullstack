@@ -10,7 +10,11 @@ export class PublicacionesService {
   //  extrae todos los articulos publicados
   async findAll() {
     try {
-      return await this.prisma.publicacion.findMany();
+      return await this.prisma.publicacion.findMany({
+        include: {
+          autor: true,
+        },
+      });
     } catch (error) {
       console.error('error al optener los articulos' + error);
       throw error;

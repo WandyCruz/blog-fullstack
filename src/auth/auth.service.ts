@@ -6,6 +6,7 @@ import { loginUsuarioDto } from './dto/login_usuario.dto';
 import { EncriptacionService } from './encriptacion/encriptacion.service';
 import { JwtAuthService } from './jwt/jwtauth.service';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -47,7 +48,7 @@ export class AuthService {
       id_rol: user.id_rol,
     });
 
-    return token;
+    return (console.log('login exitoso'), token);
   }
 
   async updatePerfil(

@@ -3,6 +3,7 @@ import {
   CanActivate,
   ExecutionContext,
   UnauthorizedException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
@@ -55,7 +56,9 @@ export class JwtCookieGuard implements CanActivate {
       }
       // vemos si en el areglo rol, se encuentra el rol del usuario filtrado
       if (!rol.includes(user.id_rol)) {
-        throw new UnauthorizedException('no tienes permisos');
+        throw new ForbiddenException(
+          'No tienes permisos para accder aa esta ruta',
+        );
       }
       // si el token pasa todas las condiciones se retorna true y da aceso
       request['user'] = user;

@@ -18,8 +18,13 @@ export class AuthController {
   constructor(private readonly auth: AuthService) {}
   // ruta de registro de usuarios
   @Post('register')
-  createUser(@Body() createUsuarioDto: CreateUsuarioDto) {
-    return this.auth.create(createUsuarioDto);
+  async createUser(@Body() createUsuarioDto: CreateUsuarioDto) {
+    try {
+      const user = await this.auth.create(createUsuarioDto);
+      return { registro_exitoso: true, user };
+    } catch (error) {
+      return { registro_exitoso: false, mensage: 'error al registrarse' };
+    }
   }
   // ruta de login de usuarios
   @Post('login')
@@ -28,19 +33,23 @@ export class AuthController {
     // acedemos al metodo response del servidor
     @Res({ passthrough: true }) res: Response,
   ) {
-    // recibimos el token de AuthService
-    const token = await this.auth.login(loginUsuarioDto);
+    try {
+      // recibimos el token de AuthService
+      const token = await this.auth.login(loginUsuarioDto);
 
-    // creamos la cookie con el token, httpOnly para que no sea acesible desde el js del frontend, y tiempo de expiracion
-    res.cookie('auth_token', token, {
-      httpOnly: true,
-      secure: false, // true si usas HTTPS
-      sameSite: 'lax',
-      maxAge: 1000 * 90 * 90 * 54, // 1 día
-    });
+      // creamos la cookie con el token, httpOnly para que no sea acesible desde el js del frontend, y tiempo de expiracion
+      res.cookie('auth_token', token, {
+        httpOnly: true,
+        secure: false, // true si usas HTTPS
+        sameSite: 'lax',
+        maxAge: 1000 * 90 * 90 * 54, // 1 día
+      });
 
-    // retornamos un mensaje
-    return token;
+      // retornamos un mensaje
+      return { registro_exitoso: true, mensage: 'login exitoso' };
+    } catch (error) {
+      return { registro_exitoso: false, mensage: 'login fallido', error };
+    }
   }
 
   // crud para editar la infi de los usuarios (correo, password, nombre)

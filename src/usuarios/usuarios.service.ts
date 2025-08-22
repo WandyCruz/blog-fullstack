@@ -4,126 +4,130 @@ import { PrismaService } from 'src/prisma/Prisma.service';
 import { loginUsuarioDto } from 'src/auth/dto/login_usuario.dto';
 import { UpdateUsuarioDto } from '../auth/dto/update-usuario.dto';
 import { UpdateRolUsuarioDto } from './dto/updateRol_Usuario.dto';
+import { Usuario } from '@prisma/client';
 
 @Injectable()
 export class UsuariosService {
   constructor(private prisma: PrismaService) {}
 
-  // recibe los datos de authService, verifica el correo  y si no existe cres un nuevo user
+  // Crear usuario
   async create({ correo, contraseña, nombre }: CreateUsuarioDto) {
     try {
-      // filtra el correo ingresado en la base de datos
       const validation = await this.prisma.usuario.findUnique({
-        where: { correo: correo },
+        where: { correo },
       });
 
-      // condiciona la respuesta
       if (validation) {
         throw new BadRequestException('usuario ya existente');
       }
 
-      // crea el usuario en la base de datos
-
       return await this.prisma.usuario.create({
         data: { contraseña, correo, nombre, id_rol: 1 },
       });
-    } catch (error) {
-      console.error('error al crear el usuario');
-      throw error;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('error al crear el usuario: ' + error.message);
+        throw new BadRequestException(error.message);
+      }
+      throw new BadRequestException('Error desconocido al crear usuario');
     }
   }
 
-  // login, recive un password y  un correo
-  async login({ correo }: loginUsuarioDto) {
+  // Login
+  async login({ correo }: loginUsuarioDto): Promise<Usuario> {
     try {
-      // verifica  que el usuario exista
-      const user = await this.prisma.usuario.findUnique({
+      const user: Usuario | null = await this.prisma.usuario.findUnique({
         where: { correo },
       });
-      //  condiciona la filtracion
+
       if (!user) {
         throw new BadRequestException('usuario no existente');
       }
 
       return user;
-    } catch (error) {
-      console.error('error al hacer login' + error);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new BadRequestException(error.message);
+      }
+      throw new BadRequestException('Error desconocido al hacer login');
     }
   }
 
-  // funcion que trae la informacion de los usuarios
-  async find() {
+  // Obtener todos los usuarios
+  async find(): Promise<Usuario[]> {
     return await this.prisma.usuario.findMany();
   }
 
-  // funcion que filtra los usuarios por id
-  async findOne(id: number) {
+  // Obtener usuario por id
+  async findOne(id: number): Promise<Usuario | null> {
     try {
       return await this.prisma.usuario.findUnique({
         where: { id_usuario: id },
       });
-    } catch (error) {
-      console.error('error al traer los datos  del  usuario');
-      throw error;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('error al traer los datos del usuario: ' + error.message);
+        throw new BadRequestException(error.message);
+      }
+      throw new BadRequestException('Error desconocido al buscar usuario');
     }
   }
 
-  // funcion que actualiza los roles
-  async update(id: number, id_rol: UpdateRolUsuarioDto) {
+  // Actualizar rol de usuario
+  async update(id: number, { id_rol }: UpdateRolUsuarioDto): Promise<Usuario> {
     try {
-      if (isNaN(id_rol.id_rol)) {
+      if (isNaN(id_rol)) {
         throw new BadRequestException('id rol no valido');
       }
 
-      const user = await this.prisma.usuario.update({
+      const user: Usuario = await this.prisma.usuario.update({
         where: { id_usuario: id },
-        data: {
-          id_rol: id_rol.id_rol,
-        },
+        data: { id_rol },
       });
 
       return user;
-    } catch (error) {
-      console.error('error al actualizar rol de  usuario' + error);
-      throw error;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('error al actualizar rol de usuario: ' + error.message);
+        throw new BadRequestException(error.message);
+      }
+      throw new BadRequestException('Error desconocido al actualizar rol');
     }
   }
 
-  // funcion parta actualizar el perfil  del usuario
-
+  // Actualizar perfil de usuario
   async updatePerfil(
     id_usuario: number,
     { contraseña, correo, nombre }: UpdateUsuarioDto,
-  ) {
+  ): Promise<Usuario> {
     try {
-      const update = await this.prisma.usuario.update({
+      const update: Usuario = await this.prisma.usuario.update({
         where: { id_usuario },
-        data: {
-          contraseña,
-          correo,
-          nombre,
-        },
+        data: { contraseña, correo, nombre },
       });
       return update;
-    } catch (error) {
-      console.error('error al actualizar perfil' + error);
-      throw error;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('error al actualizar perfil: ' + error.message);
+        throw new BadRequestException(error.message);
+      }
+      throw new BadRequestException('Error desconocido al actualizar perfil');
     }
   }
 
-  // funcion que elimina usuario
-
-  async remove(id: number) {
+  // Eliminar usuario
+  async remove(id: number): Promise<Usuario> {
     try {
-      return await this.prisma.usuario.delete({
+      const deleted: Usuario = await this.prisma.usuario.delete({
         where: { id_usuario: id },
       });
+      return deleted;
     } catch (error: unknown) {
       if (error instanceof Error) {
-        console.error(error.message);
+        console.error('error al eliminar usuario: ' + error.message);
+        throw new BadRequestException(error.message);
       }
-
-      throw error;
+      throw new BadRequestException('Error desconocido al eliminar usuario');
     }
   }
 }
